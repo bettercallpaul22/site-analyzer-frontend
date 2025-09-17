@@ -1,0 +1,181 @@
+import React, { useRef, useState, useCallback } from 'react';
+import { Button, Box, Typography, Snackbar, Alert } from '@mui/material';
+import { CloudUpload, Analytics, CheckCircle } from '@mui/icons-material';
+import { AnalysisResponse } from './types';
+
+interface UploadProps {
+  setResponse: (response: AnalysisResponse | null) => void;
+  setError: (error: string | null) => void;
+  setLoading: (loading: boolean) => void;
+}
+
+const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) => {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [dragOver, setDragOver] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+  }, []);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (['image/png', 'image/jpeg'].includes(file.type)) {
+        setSelectedFile(file);
+        if (fileInputRef.current) {
+          const dt = new DataTransfer();
+          dt.items.add(file);
+          fileInputRef.current.files = dt.files;
+        }
+      } else {
+        setError('Please select a PNG or JPG file.');
+      }
+    }
+  }, [setError]);
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (['image/png', 'image/jpeg'].includes(file.type)) {
+        setSelectedFile(file);
+      } else {
+        setError('Please select a PNG or JPG file.');
+      }
+    }
+  };
+
+  const handleAnalyze = async () => {
+    setError(null);
+    setResponse(null);
+
+    const file = selectedFile || fileInputRef.current?.files?.[0];
+    if (!file) {
+      setError('Please select an image file.');
+      return;
+    }
+    if (!['image/png', 'image/jpeg'].includes(file.type)) {
+      setError('Please select a PNG or JPG file.');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('http://localhost:5000/analyze', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error(`HTTP error! Status: ${res.status}`);
+      }
+
+      const data: AnalysisResponse = await res.json();
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setResponse(data);
+        setShowSuccess(true);
+      }
+    } catch (err) {
+      setError(`Error: ${(err as Error).message}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="upload-section">
+      <div className="upload-header">
+        <h1 className="upload-title">Site Plan Analyzer</h1>
+        <p className="upload-subtitle">
+          Upload your site plan image and get detailed analysis with interactive visualizations
+        </p>
+      </div>
+
+      <div className="upload-form">
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleFileSelect}
+          accept="image/png,image/jpeg"
+          style={{ display: 'none' }}
+        />
+        
+        <div
+          className={`drag-drop-zone ${dragOver ? 'drag-over' : ''}`}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          onClick={() => fileInputRef.current?.click()}
+        >
+          {selectedFile ? (
+            <>
+              <CheckCircle className="upload-icon" style={{ color: '#4caf50' }} />
+              <div className="drag-drop-text">File Selected</div>
+              <div className="drag-drop-subtext">{selectedFile.name}</div>
+              <div className="drag-drop-subtext">
+                Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
+              </div>
+            </>
+          ) : (
+            <>
+              <CloudUpload className="upload-icon" />
+              <div className="drag-drop-text">
+                Drag & drop your image here
+              </div>
+              <div className="drag-drop-subtext">
+                or click to browse files
+              </div>
+            </>
+          )}
+          <div className="file-types">
+            PNG, JPG up to 10MB
+          </div>
+        </div>
+
+        <Button
+          variant="contained"
+          startIcon={<Analytics />}
+          onClick={handleAnalyze}
+          className="analyze-button"
+          disabled={!selectedFile}
+          size="large"
+        >
+          Analyze Site Plan
+        </Button>
+      </div>
+
+      <Snackbar
+        open={showSuccess}
+        autoHideDuration={3000}
+        onClose={() => setShowSuccess(false)}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+      >
+        <Alert
+          onClose={() => setShowSuccess(false)}
+          severity="success"
+          variant="filled"
+        >
+          Analysis completed successfully!
+        </Alert>
+      </Snackbar>
+    </div>
+  );
+};
+
+export default Upload;
