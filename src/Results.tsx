@@ -1,25 +1,35 @@
 import React, { useState } from 'react';
-import { 
-  Box, 
-  Typography, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
+import {
+  Box,
+  Typography,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
   TableRow,
-  CircularProgress,
-  Alert
+  Alert,
+  Card,
+  CardContent,
+  CardMedia,
+  Dialog,
+  IconButton,
+  DialogContent,
+  DialogTitle,
+  Fade
 } from '@mui/material';
-import { 
-  ErrorOutline, 
-  InsertChart, 
+import {
+  ErrorOutline,
+  InsertChart,
   ViewModule,
-  Map
+  Map,
+  Close,
+  NavigateNext,
+  NavigateBefore,
+  ZoomIn,
+  ZoomOut,
+  ZoomOutMap
 } from '@mui/icons-material';
-import PhotoGallery from 'react-photo-gallery';
-import Lightbox from 'react-image-lightbox';
-import 'react-image-lightbox/style.css';
 import { AnalysisResponse } from './types';
 
 interface ResultsProps {
@@ -28,9 +38,289 @@ interface ResultsProps {
   loading: boolean;
 }
 
+interface CustomImageViewerProps {
+  images: Array<{
+    key: string;
+    plotId: string;
+    src: string;
+    index: number;
+  }>;
+  currentIndex: number;
+  isOpen: boolean;
+  onClose: () => void;
+  onNext: () => void;
+  onPrev: () => void;
+  plotDetails: any[];
+}
+
+const CustomImageViewer: React.FC<CustomImageViewerProps> = ({
+  images,
+  currentIndex,
+  isOpen,
+  onClose,
+  onNext,
+  onPrev,
+  plotDetails
+}) => {
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  const currentImage = images[currentIndex];
+  const currentPlot = plotDetails.find(p => p.plot_id === parseInt(currentImage?.plotId));
+
+  const handleZoomIn = () => setZoom(prev => Math.min(prev * 1.5, 5));
+  const handleZoomOut = () => setZoom(prev => Math.max(prev / 1.5, 0.5));
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom > 1) {
+      setIsDragging(true);
+      setDragStart({
+        x: e.clientX - pan.x,
+        y: e.clientY - pan.y
+      });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && zoom > 1) {
+      setPan({
+        x: e.clientX - dragStart.x,
+        y: e.clientY - dragStart.y
+      });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  React.useEffect(() => {
+    if (isOpen) {
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+    }
+  }, [isOpen, currentIndex]);
+
+  if (!isOpen || !currentImage) return null;
+
+  return (
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      maxWidth={false}
+      fullScreen
+      sx={{
+        '& .MuiDialog-paper': {
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          margin: 0,
+        }
+      }}
+    >
+      <DialogTitle sx={{ 
+        color: 'white', 
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        p: 2
+      }}>
+        <Box>
+          <Typography variant="h6" sx={{ color: 'white' }}>
+            Plot {currentImage.plotId} - Highlighted View
+          </Typography>
+          {currentPlot && (
+            <Typography variant="body2" sx={{ color: '#ccc', mt: 0.5 }}>
+              {currentPlot.shape_type} • {currentPlot.area_value} sq.m • {currentPlot.num_sides} sides
+            </Typography>
+          )}
+        </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <Typography variant="body2" sx={{ color: '#ccc' }}>
+            {currentIndex + 1} of {images.length}
+          </Typography>
+          <IconButton onClick={onClose} sx={{ color: 'white' }}>
+            <Close />
+          </IconButton>
+        </Box>
+      </DialogTitle>
+
+      <DialogContent sx={{ 
+        p: 0, 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        position: 'relative',
+        overflow: 'hidden'
+      }}>
+        {/* Navigation Controls */}
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          left: 20,
+          transform: 'translateY(-50%)',
+          zIndex: 10
+        }}>
+          <IconButton
+            onClick={onPrev}
+            disabled={images.length <= 1}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              },
+              '&:disabled': {
+                opacity: 0.3
+              }
+            }}
+          >
+            <NavigateBefore fontSize="large" />
+          </IconButton>
+        </Box>
+
+        <Box sx={{
+          position: 'absolute',
+          top: '50%',
+          right: 20,
+          transform: 'translateY(-50%)',
+          zIndex: 10
+        }}>
+          <IconButton
+            onClick={onNext}
+            disabled={images.length <= 1}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: 'rgba(255, 255, 255, 0.2)',
+              },
+              '&:disabled': {
+                opacity: 0.3
+              }
+            }}
+          >
+            <NavigateNext fontSize="large" />
+          </IconButton>
+        </Box>
+
+        {/* Zoom Controls */}
+        <Box sx={{
+          position: 'absolute',
+          bottom: 20,
+          right: 20,
+          display: 'flex',
+          gap: 1,
+          zIndex: 10
+        }}>
+          <IconButton
+            onClick={handleZoomOut}
+            disabled={zoom <= 0.5}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+              '&:disabled': { opacity: 0.3 }
+            }}
+          >
+            <ZoomOut />
+          </IconButton>
+          <IconButton
+            onClick={handleResetZoom}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.2)' }
+            }}
+          >
+            <ZoomOutMap />
+          </IconButton>
+          <IconButton
+            onClick={handleZoomIn}
+            disabled={zoom >= 5}
+            sx={{
+              backgroundColor: 'rgba(255, 255, 255, 0.1)',
+              color: 'white',
+              '&:hover': { backgroundColor: 'rgba(255, 255, 255, 0.2)' },
+              '&:disabled': { opacity: 0.3 }
+            }}
+          >
+            <ZoomIn />
+          </IconButton>
+        </Box>
+
+        {/* Image Container */}
+        <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: zoom > 1 ? (isDragging ? 'grabbing' : 'grab') : 'default',
+            overflow: 'hidden'
+          }}
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUp}
+          onMouseLeave={handleMouseUp}
+        >
+          <Fade in={true} timeout={300}>
+            <Box
+              component="img"
+              src={currentImage.src}
+              alt={`Highlighted Plot ${currentImage.plotId}`}
+              sx={{
+                maxWidth: zoom === 1 ? '90%' : 'none',
+                maxHeight: zoom === 1 ? '90%' : 'none',
+                transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+                transition: isDragging ? 'none' : 'transform 0.2s ease-out',
+                userSelect: 'none',
+                pointerEvents: 'none'
+              }}
+            />
+          </Fade>
+        </Box>
+
+        {/* Plot Details Overlay */}
+        {currentPlot && (
+          <Box sx={{
+            position: 'absolute',
+            bottom: 20,
+            left: 20,
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            color: 'white',
+            p: 2,
+            borderRadius: 1,
+            maxWidth: 300
+          }}>
+            <Typography variant="subtitle2" gutterBottom>
+              Plot {currentImage.plotId} Details
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+              Shape: {currentPlot.shape_type} ({currentPlot.num_sides} sides)
+            </Typography>
+            <Typography variant="body2" sx={{ mb: 0.5 }}>
+              Area: {currentPlot.area_value} sq.m ({(currentPlot.area_value * 10.764).toFixed(1)} sq.ft)
+            </Typography>
+            <Typography variant="body2">
+              Edges: {currentPlot.edge_dimensions.map((edge: any) => `${edge.length_meters}m`).join(', ')}
+            </Typography>
+          </Box>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+};
+
 const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [photoIndex, setPhotoIndex] = useState(0);
+  const [viewerOpen, setViewerOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   if (loading) {
     return (
@@ -85,20 +375,44 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
   // Calculate total area
   const totalArea = summary.plots.reduce((sum, plot) => sum + plot.area_value, 0);
 
-  // Prepare photos for gallery
+  // Prepare ONLY highlighted plot photos for gallery
   const plotPhotos = Object.entries(svgs)
-    .filter(([key, value]) => key !== 'overview' && value !== undefined)
-    .map(([key, svgString], index) => ({
-      key,
-      src: `data:image/svg+xml;base64,${btoa(svgString as string)}`,
-      width: 4,
-      height: 3,
-      index,
-    }));
+    .filter(([key, value]) => {
+      // Only include highlighted plots and exclude overview
+      return key.includes('_highlighted') && key !== 'overview' && value !== undefined && value.trim() !== '';
+    })
+    .map(([key, svgString], index) => {
+      // Extract plot ID from key (e.g., "plot_1_highlighted" -> "1")
+      const plotIdMatch = key.match(/plot_(\d+)_highlighted/);
+      const plotId = plotIdMatch ? plotIdMatch[1] : key;
+      
+      // Clean and validate SVG string
+      const cleanSvgString = (svgString as string).trim();
+      
+      return {
+        key,
+        plotId,
+        src: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(cleanSvgString)}`,
+        index,
+      };
+    })
+    .sort((a, b) => parseInt(a.plotId) - parseInt(b.plotId));
 
-  const openLightbox = (event: React.MouseEvent, { index }: { index: number }) => {
-    setPhotoIndex(index);
-    setIsOpen(true);
+  const openViewer = (index: number) => {
+    setCurrentImageIndex(index);
+    setViewerOpen(true);
+  };
+
+  const closeViewer = () => {
+    setViewerOpen(false);
+  };
+
+  const nextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % plotPhotos.length);
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prev) => (prev + plotPhotos.length - 1) % plotPhotos.length);
   };
 
   return (
@@ -137,7 +451,7 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
             Plot Details
           </Typography>
           
-          <div className="table-container">
+          {/* <div className="table-container">
             <TableContainer>
               <Table size="small">
                 <TableHead>
@@ -146,14 +460,15 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                     <TableCell sx={{ fontWeight: 600 }}>Shape</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Area (sq.m)</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Area (sq.ft)</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Highlighted Plot</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Edge Details</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {summary.plots.map((plot, index) => (
-                    <TableRow 
+                    <TableRow
                       key={plot.plot_id}
-                      sx={{ 
+                      sx={{
                         backgroundColor: index % 2 === 0 ? 'white' : '#f8fafc',
                         '&:hover': { backgroundColor: '#f0f4ff' }
                       }}
@@ -162,6 +477,26 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                       <TableCell>{`${plot.shape_type} (${plot.num_sides} sides)`}</TableCell>
                       <TableCell sx={{ fontWeight: 500 }}>{plot.area_value}</TableCell>
                       <TableCell sx={{ color: '#64748b' }}>{(plot.area_value * 10.764).toFixed(1)}</TableCell>
+                      <TableCell>
+                        {svgs[`plot_${plot.plot_id}_highlighted`] ? (
+                          <div
+                            style={{
+                              border: '1px solid #e2e8f0',
+                              borderRadius: '4px',
+                              display: 'flex',
+                              justifyContent: 'center',
+                              alignItems: 'center'
+                            }}
+                            dangerouslySetInnerHTML={{
+                              __html: svgs[`plot_${plot.plot_id}_highlighted`]
+                            }}
+                          />
+                        ) : (
+                          <Typography variant="body2" color="textSecondary">
+                            No highlighted version available
+                          </Typography>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <Box sx={{ fontSize: '0.875rem', color: '#64748b' }}>
                           {plot.edge_dimensions
@@ -174,7 +509,7 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                 </TableBody>
               </Table>
             </TableContainer>
-          </div>
+          </div> */}
         </div>
 
         <div className="gallery-section">
@@ -194,44 +529,54 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3 }}>
             <ViewModule sx={{ color: '#6366f1' }} />
             <Typography variant="h6">
-              Individual Plot Gallery ({plotPhotos.length} plots)
+              Highlighted Plot Gallery ({plotPhotos.length} highlighted plots)
             </Typography>
           </Box>
           
           {plotPhotos.length > 0 ? (
-            <div className="gallery-container">
-              <div className="react-photo-gallery--gallery">
-                {plotPhotos.map((photo, index) => (
-                  <div 
-                    key={photo.key}
-                    className="gallery-item"
-                    onClick={(e) => openLightbox(e, { index })}
+            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
+              {plotPhotos.map((photo, index) => {
+                const plot = summary.plots.find(p => p.plot_id === parseInt(photo.plotId));
+                if (!plot) return null;
+                return (
+                  <Card 
+                    key={photo.key} 
+                    sx={{ 
+                      maxWidth: 345, 
+                      cursor: 'pointer',
+                      transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                      '&:hover': {
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+                      }
+                    }} 
+                    onClick={() => openViewer(index)}
                   >
-                    <img
-                      src={photo.src}
-                      alt={`Plot ${photo.key}`}
-                      style={{
-                        width: '100%',
-                        height: 'auto',
-                        display: 'block',
-                        borderRadius: '8px'
-                      }}
+                    <CardMedia
+                      component="img"
+                      height="400"
+                      width="100%"
+                      image={photo.src}
+                      alt={`Highlighted Plot ${photo.plotId}`}
                     />
-                    <Typography 
-                      variant="subtitle2" 
-                      sx={{ 
-                        mt: 1, 
-                        textAlign: 'center', 
-                        color: '#64748b',
-                        fontWeight: 500
-                      }}
-                    >
-                      Plot {photo.key}
-                    </Typography>
-                  </div>
-                ))}
-              </div>
-            </div>
+                    <CardContent>
+                      <Typography gutterBottom variant="h5" component="div">
+                        Plot {photo.plotId} (Highlighted)
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Shape: {plot.shape_type} ({plot.num_sides} sides)
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Area: {plot.area_value} sq.m ({(plot.area_value * 10.764).toFixed(1)} sq.ft)
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Edges: {plot.edge_dimensions.map((edge) => `${edge.length_meters}m (${edge.source})`).join(', ')}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </Box>
           ) : (
             <Box sx={{ 
               display: 'flex', 
@@ -242,25 +587,22 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
             }}>
               <ViewModule sx={{ fontSize: '3rem', mb: 2, color: '#cbd5e1' }} />
               <Typography variant="body1">
-                No individual plots available for display
+                No highlighted plots available for display
               </Typography>
             </Box>
           )}
         </div>
       </div>
 
-      {isOpen && plotPhotos.length > 0 && (
-        <Lightbox
-          mainSrc={plotPhotos[photoIndex].src}
-          nextSrc={plotPhotos[(photoIndex + 1) % plotPhotos.length].src}
-          prevSrc={plotPhotos[(photoIndex + plotPhotos.length - 1) % plotPhotos.length].src}
-          onCloseRequest={() => setIsOpen(false)}
-          onMovePrevRequest={() => setPhotoIndex((photoIndex + plotPhotos.length - 1) % plotPhotos.length)}
-          onMoveNextRequest={() => setPhotoIndex((photoIndex + 1) % plotPhotos.length)}
-          imageTitle={`Plot ${plotPhotos[photoIndex].key}`}
-          imageCaption={`Plot ${plotPhotos[photoIndex].key} - Detailed view`}
-        />
-      )}
+      <CustomImageViewer
+        images={plotPhotos}
+        currentIndex={currentImageIndex}
+        isOpen={viewerOpen}
+        onClose={closeViewer}
+        onNext={nextImage}
+        onPrev={prevImage}
+        plotDetails={summary.plots}
+      />
     </div>
   );
 };

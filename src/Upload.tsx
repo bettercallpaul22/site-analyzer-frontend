@@ -1,6 +1,8 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Button, Box, Typography, Snackbar, Alert } from '@mui/material';
-import { CloudUpload, Analytics, CheckCircle } from '@mui/icons-material';
+import { Button, Box, Typography, Snackbar, Alert, Modal, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { CloudUpload, Analytics, CheckCircle, Crop } from '@mui/icons-material';
+import Cropper, { ReactCropperElement } from 'react-cropper';
+import 'cropperjs/dist/cropper.css';
 import { AnalysisResponse } from './types';
 
 interface UploadProps {
@@ -11,9 +13,12 @@ interface UploadProps {
 
 const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cropperRef = useRef<ReactCropperElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [showCropModal, setShowCropModal] = useState(false);
+  const [imageSrc, setImageSrc] = useState<string>('');
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -28,12 +33,19 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
     setDragOver(false);
-    
+
     const files = e.dataTransfer.files;
     if (files.length > 0) {
       const file = files[0];
       if (['image/png', 'image/jpeg'].includes(file.type)) {
         setSelectedFile(file);
+        // Create image URL for cropping
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImageSrc(reader.result as string);
+          setShowCropModal(true);
+        };
+        reader.readAsDataURL(file);
         if (fileInputRef.current) {
           const dt = new DataTransfer();
           dt.items.add(file);
@@ -50,9 +62,44 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
     if (file) {
       if (['image/png', 'image/jpeg'].includes(file.type)) {
         setSelectedFile(file);
+        // Create image URL for cropping
+        const reader = new FileReader();
+        reader.onload = () => {
+          setImageSrc(reader.result as string);
+          setShowCropModal(true);
+        };
+        reader.readAsDataURL(file);
       } else {
         setError('Please select a PNG or JPG file.');
       }
+    }
+  };
+
+  const handleCropComplete = () => {
+    const cropper = cropperRef.current?.cropper;
+    if (cropper) {
+      try {
+        cropper.getCroppedCanvas().toBlob((blob) => {
+          if (blob) {
+            const croppedFile = new File([blob], 'cropped-image.jpg', { type: 'image/jpeg' });
+            setSelectedFile(croppedFile);
+            setShowCropModal(false);
+            setImageSrc('');
+          }
+        }, 'image/jpeg', 0.95);
+      } catch (error) {
+        console.error('Error cropping image:', error);
+        setError('Failed to crop image');
+      }
+    }
+  };
+
+  const handleCropCancel = () => {
+    setShowCropModal(false);
+    setImageSrc('');
+    // Reset to original file if user cancels
+    if (fileInputRef.current?.files?.[0]) {
+      setSelectedFile(fileInputRef.current.files[0]);
     }
   };
 
@@ -75,7 +122,7 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
       const formData = new FormData();
       formData.append('file', file);
 
-      const res = await fetch('http://localhost:5000/analyze', {
+      const res = await fetch('http://localhost:5001/analyze', {
         method: 'POST',
         body: formData,
       });
@@ -174,6 +221,54 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
           Analysis completed successfully!
         </Alert>
       </Snackbar>
+
+      <Dialog
+        open={showCropModal}
+        onClose={handleCropCancel}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle>
+          <Box display="flex" alignItems="center" gap={1}>
+            <Crop />
+            Crop Your Site Plan Image
+          </Box>
+        </DialogTitle>
+        <DialogContent>
+          <Box display="flex" justifyContent="center" mb={2}>
+            <Typography variant="body2" color="textSecondary">
+              Adjust the crop area to focus on the site plan you want to analyze
+            </Typography>
+          </Box>
+          {imageSrc && (
+            <Box position="relative" width="100%" height="60vh">
+              <Cropper
+                ref={cropperRef}
+                src={imageSrc}
+                style={{ height: '100%', width: '100%' }}
+                guides={true}
+                cropBoxResizable={true}
+                cropBoxMovable={true}
+                dragMode="move"
+                responsive={true}
+                checkOrientation={false}
+              />
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCropCancel} color="secondary">
+            Cancel
+          </Button>
+          <Button
+            onClick={handleCropComplete}
+            variant="contained"
+            color="primary"
+          >
+            Apply Crop
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
