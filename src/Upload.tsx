@@ -1,5 +1,5 @@
 import React, { useRef, useState, useCallback } from 'react';
-import { Button, Box, Typography, Snackbar, Alert, Modal, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import { Button, Box, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { CloudUpload, Analytics, CheckCircle, Crop } from '@mui/icons-material';
 import Cropper, { ReactCropperElement } from 'react-cropper';
 import 'cropperjs/dist/cropper.css';
@@ -19,6 +19,7 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
   const [showSuccess, setShowSuccess] = useState(false);
   const [showCropModal, setShowCropModal] = useState(false);
   const [imageSrc, setImageSrc] = useState<string>('');
+  const [outputFormat, setOutputFormat] = useState<'svg' | 'jpeg'>('svg');
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -121,6 +122,7 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('output_format', outputFormat);
 
       const res = await fetch('http://localhost:5001/analyze', {
         method: 'POST',
@@ -194,6 +196,22 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
             PNG, JPG up to 10MB
           </div>
         </div>
+
+        <Box sx={{ mt: 3, mb: 2 }}>
+          <FormControl component="fieldset">
+            <FormLabel component="legend" sx={{ mb: 1, fontWeight: 'bold' }}>
+              Output Format
+            </FormLabel>
+            <RadioGroup
+              row
+              value={outputFormat}
+              onChange={(e) => setOutputFormat(e.target.value as 'svg' | 'jpeg')}
+            >
+              <FormControlLabel value="svg" control={<Radio />} label="SVG (Vector)" />
+              <FormControlLabel value="jpeg" control={<Radio />} label="JPEG (Raster)" />
+            </RadioGroup>
+          </FormControl>
+        </Box>
 
         <Button
           variant="contained"

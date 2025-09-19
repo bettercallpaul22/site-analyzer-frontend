@@ -2,12 +2,6 @@ import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
   Alert,
   Card,
   CardContent,
@@ -370,29 +364,38 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
     );
   }
 
-  const { summary, svgs } = response;
+  const { summary, svgs, images } = response;
 
   // Calculate total area
   const totalArea = summary.plots.reduce((sum, plot) => sum + plot.area_value, 0);
 
   // Prepare ONLY highlighted plot photos for gallery
-  const plotPhotos = Object.entries(svgs)
+  const plotPhotos = Object.entries(svgs || images || {})
     .filter(([key, value]) => {
       // Only include highlighted plots and exclude overview
       return key.includes('_highlighted') && key !== 'overview' && value !== undefined && value.trim() !== '';
     })
-    .map(([key, svgString], index) => {
+    .map(([key, content], index) => {
       // Extract plot ID from key (e.g., "plot_1_highlighted" -> "1")
       const plotIdMatch = key.match(/plot_(\d+)_highlighted/);
       const plotId = plotIdMatch ? plotIdMatch[1] : key;
-      
-      // Clean and validate SVG string
-      const cleanSvgString = (svgString as string).trim();
-      
+
+      let src: string;
+      if (svgs) {
+        // SVG content - inline
+        const cleanSvgString = (content as string).trim();
+        src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(cleanSvgString)}`;
+      } else if (images) {
+        // Base64 encoded image - use directly
+        src = content as string;
+      } else {
+        src = '';
+      }
+
       return {
         key,
         plotId,
-        src: `data:image/svg+xml;charset=utf-8,${encodeURIComponent(cleanSvgString)}`,
+        src,
         index,
       };
     })
@@ -519,10 +522,18 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
               Site Plan Overview
             </Typography>
           </Box>
-          
-          {svgs.overview && (
+
+          {(svgs?.overview || images?.overview) && (
             <div className="overview-container">
-              <div dangerouslySetInnerHTML={{ __html: svgs.overview }} />
+              {svgs?.overview ? (
+                <div dangerouslySetInnerHTML={{ __html: svgs.overview }} />
+              ) : images?.overview ? (
+                <img
+                  src={images.overview}
+                  alt="Site Plan Overview"
+                  style={{ maxWidth: '100%', height: 'auto' }}
+                />
+              ) : null}
             </div>
           )}
 
@@ -539,17 +550,17 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                 const plot = summary.plots.find(p => p.plot_id === parseInt(photo.plotId));
                 if (!plot) return null;
                 return (
-                  <Card 
-                    key={photo.key} 
-                    sx={{ 
-                      maxWidth: 345, 
+                  <Card
+                    key={photo.key}
+                    sx={{
+                      maxWidth: 345,
                       cursor: 'pointer',
                       transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
                       }
-                    }} 
+                    }}
                     onClick={() => openViewer(index)}
                   >
                     <CardMedia

@@ -13,9 +13,7 @@ export interface AnalysisResponse {
       }>;
     }>;
   };
-  svgs: {
-    overview?: any;
-    [key: string]: string;
-  };
+  svgs?: Record<string, string>;
+  images?: Record<string, string>;
   error?: string;
 }
