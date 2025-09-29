@@ -8,6 +8,7 @@ import {
   CardMedia,
   IconButton,
   CircularProgress,
+  Modal,
 } from '@mui/material';
 import {
   ErrorOutline,
@@ -29,6 +30,8 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
   const [highlightLoading, setHighlightLoading] = useState(false);
   const [highlightError, setHighlightError] = useState<string | null>(null);
   const [highlightedOverview, setHighlightedOverview] = useState<string | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   const colors = [
     { fill: '#f59e0b', stroke: '#b45309' }, // orange
@@ -324,9 +327,9 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                         boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
                       }
                     }}
-                    onClick={async () => {
-                      setSelectedPlotId(plot.plot_id);
-                      // The overview will now update via the useEffect hook
+                    onClick={() => {
+                      setPreviewImage(photo.src);
+                      setPreviewOpen(true);
                     }}
                   >
                     <CardMedia
@@ -358,8 +361,22 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
             <Typography variant="body1" color="textSecondary">
               No highlighted plots available
             </Typography>
-          )} 
+          )}
         </div>
+
+        {/* Image Preview Modal */}
+        <Modal
+          open={previewOpen}
+          onClose={() => setPreviewOpen(false)}
+          aria-labelledby="gallery-preview"
+        >
+          <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', p: 4, boxShadow: 24, maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto' }}>
+            {previewImage && <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '80vh' }} />}
+            <IconButton onClick={() => setPreviewOpen(false)} sx={{ position: 'absolute', top: 10, right: 10 }}>
+              <Close />
+            </IconButton>
+          </Box>
+        </Modal>
       </div>
     </div>
   );
