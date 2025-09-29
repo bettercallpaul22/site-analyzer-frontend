@@ -74,6 +74,48 @@ npm run eject
 ```
 **Note: irreversibly ejects from create-react-app.**
 
+## Vercel Deployment
+
+This project is configured for automatic deployment on Vercel. The frontend is connected to GitHub and deploys on every push to the main branch.
+
+### Manual Deployment After Code Changes
+
+1. **Make your changes** and test locally:
+   ```bash
+   npm run dev
+   ```
+
+2. **Commit and push your changes**:
+   ```bash
+   git add .
+   git commit -m "Your commit message"
+   git push
+   ```
+
+3. **Deploy to Vercel** (if automatic deployment is not enabled):
+   - Install Vercel CLI (if not already installed):
+     ```bash
+     npm install -g vercel
+     ```
+   - Link to existing Vercel project (already linked):
+     ```bash
+     cd site-analyzer-frontend-main
+     vercel --prod
+     ```
+   - This will build and deploy your changes to production
+
+### Automatic Deployment
+
+Once connected to GitHub, Vercel will automatically deploy on every push to the main branch. You can check deployment status and view the live site at: https://site-analyzer-frontend-main-b535n0tds.vercel.app
+
+### Environment Variables (if needed)
+
+If your app uses environment variables, add them in the Vercel dashboard or using CLI:
+
+```bash
+vercel env add VARIABLE_NAME
+```
+
 ## Backend Connection
 
 This frontend requires the [Site Analyzer Backend](../site-analyzer-backend-main/) to function properly:
