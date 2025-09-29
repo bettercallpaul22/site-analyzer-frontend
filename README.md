@@ -1,46 +1,127 @@
-# Getting Started with Create React App
+# Site Analyzer Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A React-based frontend application for analyzing site plans using computer vision. This application allows users to upload site plan images, send them to the backend API for analysis, and view detailed results including detected plots with dimensions and area calculations.
+
+## Features
+
+- **Image Upload**: Drag-and-drop or click-to-select image uploads
+- **Real-time Analysis**: Connects to the backend API for automated site plan analysis
+- **Results Visualization**: Displays detected plots with dimensions and area measurements
+- **Responsive Design**: Works on desktop and mobile devices using Material-UI
+- **Modern UI**: Clean, intuitive interface for ease of use
+
+## Prerequisites
+
+- Node.js 14+ and npm (comes with Node.js)
+- The backend service running (see [backend README](../site-analyzer-backend-main/README.md))
+
+## Quick Start
+
+### 1. Navigate to Frontend Directory
+
+```bash
+cd site-analyzer-frontend-main
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Configure Backend URL
+
+Edit `src/config.ts` to point to your backend:
+- For production: `https://pacific-taiga-69560-964a51d44167.herokuapp.com`
+- For local development: `http://localhost:5000`
+
+### 4. Start Development Server
+
+```bash
+npm run dev
+```
+
+The application will open at [http://localhost:3000](http://localhost:3000)
 
 ## Available Scripts
 
-In the project directory, you can run:
+### Development
 
-### `npm start`
+```bash
+npm run dev
+```
+Runs the app in development mode with hot reloading.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### Production Build
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+npm run build
+npm start
+```
+Builds the app for production and serves the optimized build.
 
-### `npm test`
+### Testing
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+npm test
+```
+Launches the test runner in interactive watch mode.
 
-### `npm run build`
+### Eject
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+```bash
+npm run eject
+```
+**Note: irreversibly ejects from create-react-app.**
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Backend Connection
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+This frontend requires the [Site Analyzer Backend](../site-analyzer-backend-main/) to function properly:
 
-### `npm run eject`
+- **Local Development**: Ensure the backend is running on the configured URL (default: `http://localhost:5000`)
+- **Production**: Deployed backend available at `https://pacific-taiga-69560-964a51d44167.herokuapp.com`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+## Technologies Used
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+- **React 19**: Frontend framework
+- **TypeScript**: Type safety
+- **Material-UI**: Component library
+- **React Cropper**: Image cropping functionality
+- **Axios**: HTTP client for API calls
+- **Create React App**: Build tooling
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Project Structure
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+```
+site-analyzer-frontend-main/
+├── public/                 # Static assets
+├── src/
+│   ├── components/         # Reusable React components
+│   ├── services/          # API integration services
+│   ├── types/             # TypeScript type definitions
+│   ├── App.tsx            # Main application component
+│   ├── config.ts          # Configuration constants
+│   └── index.tsx          # Application entry point
+├── package.json           # Dependencies and scripts
+└── tsconfig.json          # TypeScript configuration
+```
 
-## Learn More
+## Usage
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Start the frontend development server (`npm run dev`)
+2. Ensure the backend is running
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
+4. Upload a site plan image
+5. View analysis results including detected plots and dimensions
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Contributing
+
+1. Follow the existing code style and TypeScript types
+2. Add tests for new features
+3. Update this README if adding new features or scripts
+
+## Troubleshooting
+
+- **Build Errors**: Run `npm install` to ensure all dependencies are installed
+- **Backend Connection Issues**: Verify the backend URL in `src/config.ts`
+- **Port Conflicts**: Default dev server runs on port 3000; can be changed if needed
