@@ -209,7 +209,7 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
               onChange={(e) => setOutputFormat(e.target.value as 'svg' | 'jpeg')}
             >
               <FormControlLabel value="svg" control={<Radio />} label="SVG (Vector)" />
-              <FormControlLabel value="jpeg" control={<Radio />} label="JPEG (Raster)" />
+              {/* <FormControlLabel value="jpeg" control={<Radio />} label="JPEG (Raster)" /> */}
             </RadioGroup>
           </FormControl>
         </Box>
