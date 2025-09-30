@@ -16,6 +16,7 @@ import {
   ViewModule,
   Map,
   Close,
+  Download,
 } from '@mui/icons-material';
 import { AnalysisResponse } from './types';
 
@@ -144,6 +145,24 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
     });
   }, [response, svgs?.overview, highlightedOverview, selectedPlotId, colors]);
 
+  const handleDownload = useCallback((event: React.MouseEvent, src: string, plotId: string) => {
+    event.stopPropagation(); // Prevent triggering the card click
+
+    // Extract SVG content from data URL
+    const svgContent = decodeURIComponent(src.replace('data:image/svg+xml;charset=utf-8,', ''));
+
+    // Create blob and download
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `plot_${plotId}_highlighted.svg`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, []);
+
   if (loading) {
     return (
       <div className="results-section">
@@ -265,12 +284,28 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
               <Typography variant="h6">Plot Details</Typography>
             </Box>
             {selectedPlotPhoto && selectedPlotDetails ? (
-              <Card sx={{ position: 'sticky', top: '20px' }}>
+              <div style={{ position: 'sticky', top: '20px' }}>
+                <Card sx={{ position: 'relative' }}>
                 <CardMedia
                   component="img"
                   image={selectedPlotPhoto.src}
                   alt={`Highlighted Plot ${selectedPlotDetails.plot_id}`}
                 />
+                <IconButton
+                  onClick={(event) => handleDownload(event, selectedPlotPhoto.src, selectedPlotPhoto.plotId)}
+                  sx={{
+                    position: 'absolute',
+                    top: 8,
+                    right: 8,
+                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    color: 'white',
+                    '&:hover': {
+                      backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                    }
+                  }}
+                >
+                  <Download />
+                </IconButton>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                     <Typography gutterBottom variant="h5" component="div">
@@ -290,7 +325,8 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                     Area: {selectedPlotDetails.area_value} sq.m ({(selectedPlotDetails.area_value * 10.764).toFixed(1)} sq.ft)
                   </Typography>
                 </CardContent>
-              </Card>
+                </Card>
+              </div>
             ) : (
               <Card variant="outlined" sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, minHeight: '300px', backgroundColor: 'transparent' }}>
                 <Typography variant="body1" color="text.secondary" align="center">
@@ -322,6 +358,7 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                       maxWidth: 345,
                       cursor: 'pointer',
                       transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                      position: 'relative',
                       '&:hover': {
                         transform: 'translateY(-4px)',
                         boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
@@ -339,6 +376,21 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                       image={photo.src}
                       alt={`Highlighted Plot ${photo.plotId}`}
                     />
+                    <IconButton
+                      onClick={(event) => handleDownload(event, photo.src, photo.plotId)}
+                      sx={{
+                        position: 'absolute',
+                        top: 8,
+                        right: 8,
+                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        color: 'white',
+                        '&:hover': {
+                          backgroundColor: 'rgba(0, 0, 0, 0.8)'
+                        }
+                      }}
+                    >
+                      <Download />
+                    </IconButton>
                     <CardContent>
                       <Typography gutterBottom variant="h5" component="div">
                         Plot {photo.plotId} (Highlighted)
