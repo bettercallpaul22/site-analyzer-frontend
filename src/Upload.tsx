@@ -2,6 +2,7 @@ import React, { useRef, useState, useCallback } from 'react';
 import { Button, Box, Typography, Snackbar, Alert, Dialog, DialogTitle, DialogContent, DialogActions, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { CloudUpload, Analytics, CheckCircle, Crop } from '@mui/icons-material';
 import Cropper, { ReactCropperElement } from 'react-cropper';
+// @ts-ignore
 import 'cropperjs/dist/cropper.css';
 import { AnalysisResponse } from './types';
 import { BASE_URL } from './url';
@@ -212,6 +213,30 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
             </RadioGroup>
           </FormControl>
         </Box>
+
+        {/* Cropped Image Preview */}
+        {selectedFile && (
+          <Box sx={{ mt: 3, textAlign: 'center' }}>
+            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
+              Cropped Image Preview
+            </Typography>
+            <Box
+              component="img"
+              src={URL.createObjectURL(selectedFile)}
+              alt="Cropped preview"
+              sx={{
+                maxWidth: '100%',
+                maxHeight: 400,
+                border: '2px solid #1976d2',
+                borderRadius: 2,
+                boxShadow: 2,
+              }}
+            />
+            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
+              This is the image that will be analyzed
+            </Typography>
+          </Box>
+        )}
 
         <Button
           variant="contained"
