@@ -184,10 +184,20 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
       <div className="results-section">
         <div className="error-container">
           <ErrorOutline className="error-icon" />
-          <Typography variant="h6" gutterBottom>
+          <Typography variant="h6" gutterBottom sx={{ fontWeight: 700, color: '#dc2626' }}>
             Analysis Failed
           </Typography>
-          <Alert severity="error" variant="outlined" sx={{ mt: 2, maxWidth: 400 }}>
+          <Alert 
+            severity="error" 
+            variant="outlined" 
+            sx={{ 
+              mt: 2, 
+              maxWidth: 500,
+              borderRadius: 2,
+              borderWidth: 2,
+              fontWeight: 500,
+            }}
+          >
             {error}
           </Alert>
         </div>
@@ -256,7 +266,14 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
               {highlightLoading && <CircularProgress size={20} />}
             </Box>
             {highlightError && (
-              <Alert severity="error" sx={{ mb: 2 }}>
+              <Alert 
+                severity="error" 
+                sx={{ 
+                  mb: 2,
+                  borderRadius: 2,
+                  fontWeight: 500,
+                }}
+              >
                 {highlightError}
               </Alert>
             )}
@@ -285,23 +302,38 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
             </Box>
             {selectedPlotPhoto && selectedPlotDetails ? (
               <div style={{ position: 'sticky', top: '20px' }}>
-                <Card sx={{ position: 'relative' }}>
+                <Card sx={{ 
+                  position: 'relative', 
+                  borderRadius: 3,
+                  border: '1px solid #e2e8f0',
+                  boxShadow: '0 10px 30px rgba(99, 102, 241, 0.15)',
+                  overflow: 'hidden',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    boxShadow: '0 15px 40px rgba(99, 102, 241, 0.25)',
+                    transform: 'translateY(-2px)',
+                  }
+                }}>
                 <CardMedia
                   component="img"
                   image={selectedPlotPhoto.src}
                   alt={`Highlighted Plot ${selectedPlotDetails.plot_id}`}
                 />
-                <IconButton
+                  <IconButton
                   onClick={(event) => handleDownload(event, selectedPlotPhoto.src, selectedPlotPhoto.plotId)}
                   sx={{
                     position: 'absolute',
-                    top: 8,
-                    right: 8,
-                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                    top: 12,
+                    right: 12,
+                    background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                     color: 'white',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
                     '&:hover': {
-                      backgroundColor: 'rgba(0, 0, 0, 0.8)'
-                    }
+                      background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                      boxShadow: '0 6px 16px rgba(99, 102, 241, 0.5)',
+                      transform: 'scale(1.05)',
+                    },
+                    transition: 'all 0.3s ease',
                   }}
                 >
                   <Download />
@@ -328,8 +360,19 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                 </Card>
               </div>
             ) : (
-              <Card variant="outlined" sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', p: 3, minHeight: '300px', backgroundColor: 'transparent' }}>
-                <Typography variant="body1" color="text.secondary" align="center">
+              <Card variant="outlined" sx={{ 
+                height: '100%', 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                p: 4, 
+                minHeight: '300px', 
+                background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+                borderRadius: 3,
+                border: '2px dashed #cbd5e1',
+                boxShadow: 'none',
+              }}>
+                <Typography variant="body1" color="text.secondary" align="center" sx={{ fontWeight: 500 }}>
                   Click a plot on the map to view its details here.
                 </Typography>
               </Card>
@@ -357,11 +400,15 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                     sx={{
                       maxWidth: 345,
                       cursor: 'pointer',
-                      transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                      transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       position: 'relative',
+                      borderRadius: 3,
+                      border: '1px solid #e2e8f0',
+                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
                       '&:hover': {
-                        transform: 'translateY(-4px)',
-                        boxShadow: '0 8px 25px rgba(0,0,0,0.15)'
+                        transform: 'translateY(-8px)',
+                        boxShadow: '0 20px 40px rgba(99, 102, 241, 0.25)',
+                        borderColor: '#c7d2fe',
                       }
                     }}
                     onClick={() => {
@@ -380,13 +427,17 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                       onClick={(event) => handleDownload(event, photo.src, photo.plotId)}
                       sx={{
                         position: 'absolute',
-                        top: 8,
-                        right: 8,
-                        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                        top: 12,
+                        right: 12,
+                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
                         color: 'white',
+                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
                         '&:hover': {
-                          backgroundColor: 'rgba(0, 0, 0, 0.8)'
-                        }
+                          background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                          boxShadow: '0 6px 16px rgba(99, 102, 241, 0.5)',
+                          transform: 'scale(1.05)',
+                        },
+                        transition: 'all 0.3s ease',
                       }}
                     >
                       <Download />
@@ -422,9 +473,33 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
           onClose={() => setPreviewOpen(false)}
           aria-labelledby="gallery-preview"
         >
-          <Box sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', bgcolor: 'background.paper', p: 4, boxShadow: 24, maxWidth: '90vw', maxHeight: '90vh', overflow: 'auto' }}>
-            {previewImage && <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '80vh' }} />}
-            <IconButton onClick={() => setPreviewOpen(false)} sx={{ position: 'absolute', top: 10, right: 10 }}>
+          <Box sx={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -50%)', 
+            bgcolor: 'background.paper', 
+            p: 4, 
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.4)',
+            borderRadius: 3,
+            maxWidth: '90vw', 
+            maxHeight: '90vh', 
+            overflow: 'auto' 
+          }}>
+            {previewImage && <img src={previewImage} alt="Preview" style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '8px' }} />}
+            <IconButton 
+              onClick={() => setPreviewOpen(false)} 
+              sx={{ 
+                position: 'absolute', 
+                top: 10, 
+                right: 10,
+                background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+                color: 'white',
+                '&:hover': {
+                  background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                }
+              }}
+            >
               <Close />
             </IconButton>
           </Box>

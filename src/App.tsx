@@ -11,29 +11,63 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1976d2',
+      main: '#6366f1',
+      light: '#818cf8',
+      dark: '#4f46e5',
+    },
+    secondary: {
+      main: '#10b981',
+      light: '#34d399',
+      dark: '#059669',
     },
     background: {
-      default: '#f5f5f5',
+      default: '#f8fafc',
       paper: '#ffffff',
+    },
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
     },
   },
   typography: {
-    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
       fontWeight: 700,
-      fontSize: '2.5rem',
-      color: '#1976d2',
+      fontSize: '2.75rem',
+      color: '#1e293b',
+      letterSpacing: '-0.02em',
     },
     h2: {
-      fontWeight: 600,
-      fontSize: '1.875rem',
+      fontWeight: 700,
+      fontSize: '2rem',
+      letterSpacing: '-0.01em',
+    },
+    h4: {
+      fontWeight: 700,
+      fontSize: '1.5rem',
     },
     h6: {
       fontWeight: 600,
       fontSize: '1.125rem',
     },
+    body1: {
+      fontSize: '1rem',
+      lineHeight: 1.6,
+    },
   },
+  shape: {
+    borderRadius: 12,
+  },
+  shadows: [
+    'none',
+    '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
+    '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+    '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+    '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+    '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+    ...Array(18).fill('0 25px 50px -12px rgba(0, 0, 0, 0.25)'),
+  ] as any,
 });
 
 const App: React.FC = () => {

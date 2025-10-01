@@ -167,20 +167,63 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
         />
         
         <div
-          className={`drag-drop-zone ${dragOver ? 'drag-over' : ''}`}
+          className={`drag-drop-zone ${dragOver ? 'drag-over' : ''} ${selectedFile ? 'has-image' : ''}`}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => !selectedFile && fileInputRef.current?.click()}
+          style={{ 
+            cursor: selectedFile ? 'default' : 'pointer',
+            backgroundImage: selectedFile ? `url(${URL.createObjectURL(selectedFile)})` : 'none'
+          }}
         >
           {selectedFile ? (
             <>
-              <CheckCircle className="upload-icon" style={{ color: '#4caf50' }} />
-              <div className="drag-drop-text">File Selected</div>
-              <div className="drag-drop-subtext">{selectedFile.name}</div>
-              <div className="drag-drop-subtext">
+              <CheckCircle className="upload-icon" style={{ color: '#10b981', filter: 'drop-shadow(0 2px 8px rgba(16, 185, 129, 0.6))' }} />
+              <div className="drag-drop-text" style={{ color: 'white', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>
+                File Selected
+              </div>
+              <div className="drag-drop-subtext" style={{ color: 'rgba(255,255,255,0.95)', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
+                {selectedFile.name}
+              </div>
+              <div className="drag-drop-subtext" style={{ color: 'rgba(255,255,255,0.9)', textShadow: '0 1px 3px rgba(0,0,0,0.5)' }}>
                 Size: {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
               </div>
+              
+              <Box sx={{ mt: 'auto', pt: 3 }}>
+                <Typography variant="caption" sx={{ 
+                  display: 'block', 
+                  color: 'rgba(255,255,255,0.95)', 
+                  mb: 2,
+                  textShadow: '0 1px 3px rgba(0,0,0,0.5)',
+                  fontWeight: 500
+                }}>
+                  This image will be analyzed
+                </Typography>
+                <Button
+                  size="small"
+                  variant="contained"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    fileInputRef.current?.click();
+                  }}
+                  sx={{ 
+                    background: 'rgba(255, 255, 255, 0.25)',
+                    backdropFilter: 'blur(10px)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.8125rem',
+                    border: '1px solid rgba(255, 255, 255, 0.3)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+                    '&:hover': {
+                      background: 'rgba(255, 255, 255, 0.35)',
+                      boxShadow: '0 6px 16px rgba(0, 0, 0, 0.4)',
+                    }
+                  }}
+                >
+                  Change Image
+                </Button>
+              </Box>
             </>
           ) : (
             <>
@@ -191,16 +234,16 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
               <div className="drag-drop-subtext">
                 or click to browse files
               </div>
+              <div className="file-types">
+                PNG, JPG up to 10MB
+              </div>
             </>
           )}
-          <div className="file-types">
-            PNG, JPG up to 10MB
-          </div>
         </div>
 
-        <Box sx={{ mt: 3, mb: 2 }}>
-          <FormControl component="fieldset">
-            <FormLabel component="legend" sx={{ mb: 1, fontWeight: 'bold' }}>
+        <Box sx={{ mt: 2, mb: 1.5 }}>
+          <FormControl component="fieldset" fullWidth>
+            <FormLabel component="legend" sx={{ mb: 1, fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>
               Output Format
             </FormLabel>
             <RadioGroup
@@ -208,46 +251,28 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
               value={outputFormat}
               onChange={(e) => setOutputFormat(e.target.value as 'svg' | 'jpeg')}
             >
-              <FormControlLabel value="svg" control={<Radio />} label="SVG (Vector)" />
+              <FormControlLabel 
+                value="svg" 
+                control={<Radio size="small" sx={{ color: '#6366f1', '&.Mui-checked': { color: '#6366f1' } }} />} 
+                label={<Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>SVG (Vector)</Typography>} 
+              />
               {/* <FormControlLabel value="jpeg" control={<Radio />} label="JPEG (Raster)" /> */}
             </RadioGroup>
           </FormControl>
         </Box>
 
-        {/* Cropped Image Preview */}
-        {selectedFile && (
-          <Box sx={{ mt: 3, textAlign: 'center' }}>
-            <Typography variant="h6" sx={{ mb: 2, fontWeight: 'bold' }}>
-              Cropped Image Preview
-            </Typography>
-            <Box
-              component="img"
-              src={URL.createObjectURL(selectedFile)}
-              alt="Cropped preview"
-              sx={{
-                maxWidth: '100%',
-                maxHeight: 400,
-                border: '2px solid #1976d2',
-                borderRadius: 2,
-                boxShadow: 2,
-              }}
-            />
-            <Typography variant="body2" color="textSecondary" sx={{ mt: 1 }}>
-              This is the image that will be analyzed
-            </Typography>
-          </Box>
-        )}
-
-        <Button
-          variant="contained"
-          startIcon={<Analytics />}
-          onClick={handleAnalyze}
-          className="analyze-button"
-          disabled={!selectedFile}
-          size="large"
-        >
-          Analyze Site Plan
-        </Button>
+        <Box sx={{ mt: 'auto', pt: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<Analytics />}
+            onClick={handleAnalyze}
+            className="analyze-button"
+            disabled={!selectedFile}
+            size="large"
+          >
+            Analyze Site Plan
+          </Button>
+        </Box>
       </div>
 
       <Snackbar
@@ -260,6 +285,12 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
           onClose={() => setShowSuccess(false)}
           severity="success"
           variant="filled"
+          sx={{
+            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+            boxShadow: '0 10px 25px rgba(16, 185, 129, 0.4)',
+            borderRadius: 2,
+            fontWeight: 600,
+          }}
         >
           Analysis completed successfully!
         </Alert>
@@ -270,16 +301,25 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
         onClose={handleCropCancel}
         maxWidth="md"
         fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: 3,
+            boxShadow: '0 25px 60px rgba(0, 0, 0, 0.3)',
+          }
+        }}
       >
-        <DialogTitle>
+        <DialogTitle sx={{ 
+          background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+          borderBottom: '1px solid #e2e8f0',
+        }}>
           <Box display="flex" alignItems="center" gap={1}>
-            <Crop />
-            Crop Your Site Plan Image
+            <Crop sx={{ color: '#6366f1' }} />
+            <Typography variant="h6" sx={{ fontWeight: 600 }}>Crop Your Site Plan Image</Typography>
           </Box>
         </DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{ mt: 2 }}>
           <Box display="flex" justifyContent="center" mb={2}>
-            <Typography variant="body2" color="textSecondary">
+            <Typography variant="body2" color="text.secondary" sx={{ fontWeight: 500 }}>
               Adjust the crop area to focus on the site plan you want to analyze
             </Typography>
           </Box>
@@ -299,14 +339,31 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
             </Box>
           )}
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCropCancel} color="secondary">
+        <DialogActions sx={{ p: 3, background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)' }}>
+          <Button 
+            onClick={handleCropCancel} 
+            sx={{ 
+              color: '#64748b',
+              fontWeight: 600,
+              '&:hover': {
+                background: '#e2e8f0',
+              }
+            }}
+          >
             Cancel
           </Button>
           <Button
             onClick={handleCropComplete}
             variant="contained"
-            color="primary"
+            sx={{
+              background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
+              fontWeight: 600,
+              '&:hover': {
+                background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
+                boxShadow: '0 6px 16px rgba(99, 102, 241, 0.5)',
+              }
+            }}
           >
             Apply Crop
           </Button>
