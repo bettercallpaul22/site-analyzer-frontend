@@ -28,12 +28,13 @@ interface ResultsProps {
 
 const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
   const [selectedPlotId, setSelectedPlotId] = useState<number | null>(null);
-  const [highlightLoading, setHighlightLoading] = useState(false);
-  const [highlightError, setHighlightError] = useState<string | null>(null);
+  const [highlightLoading] = useState(false);
+  const [highlightError] = useState<string | null>(null);
   const [highlightedOverview, setHighlightedOverview] = useState<string | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
 
+  // eslint-disable-next-line 
   const colors = [
     { fill: '#f59e0b', stroke: '#b45309' }, // orange
     { fill: '#10b981', stroke: '#047857' }, // green
@@ -227,43 +228,48 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
   return (
     <div className="results-section">
       <div className="results-header">
-        <Typography variant="h2" gutterBottom>
-          Analysis Results
-        </Typography>
-        <Typography variant="body1" color="textSecondary">
-          Detailed breakdown of your site plan with interactive visualizations
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 3, flexWrap: 'wrap' }}>
+          <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>
+            <Typography variant="h2" gutterBottom sx={{ mb: 1 }}>
+              Analysis Results
+            </Typography>
+            <Typography variant="body1" color="textSecondary">
+              Detailed breakdown of your site plan with interactive visualizations
+            </Typography>
+          </Box>
+          
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+            <div className="stat-card-compact">
+              <div className="stat-number-compact">{summary!.total_plots}</div>
+              <div className="stat-label-compact">Total Plots</div>
+            </div>
+            <div className="stat-card-compact stat-card-compact-2">
+              <div className="stat-number-compact">{totalArea.toFixed(1)}</div>
+              <div className="stat-label-compact">Area (sq.m)</div>
+            </div>
+            <div className="stat-card-compact stat-card-compact-3">
+              <div className="stat-number-compact">{(totalArea * 10.764).toFixed(0)}</div>
+              <div className="stat-label-compact">Area (sq.ft)</div>
+            </div>
+          </Box>
+        </Box>
       </div>
 
       <div className="results-content">
-        <div className="summary-section">
-          <Typography variant="h6" gutterBottom sx={{ mb: 3 }}>
-            Summary Statistics
-          </Typography>
 
-          <div className="stats-grid">
-            <div className="stat-card">
-              <div className="stat-number">{summary!.total_plots}</div>
-              <div className="stat-label">Total Plots</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">{totalArea.toFixed(1)}</div>
-              <div className="stat-label">Total Area (sq.m)</div>
-            </div>
-            <div className="stat-card">
-              <div className="stat-number">{(totalArea * 10.764).toFixed(0)}</div>
-              <div className="stat-label">Total Area (sq.ft)</div>
-            </div>
-          </div>
-        </div>
-
-        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '2fr 1fr' }, gap: 3, mt: 4 }}>
+        <Box sx={{ 
+          display: 'grid', 
+          gridTemplateColumns: { xs: '1fr', lg: '1.2fr 1fr' }, 
+          gap: 2, 
+          p: 3,
+          minHeight: 0,
+        }}>
           {/* --- Left Column: Overview Map --- */}
-          <Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Map sx={{ color: '#6366f1' }} />
-              <Typography variant="h6">Site Plan Overview</Typography>
-              {highlightLoading && <CircularProgress size={20} />}
+              <Map sx={{ color: '#6366f1', fontSize: '1.25rem' }} />
+              <Typography variant="h6" sx={{ fontWeight: 600, color: '#f1f5f9', fontSize: '1rem' }}>Site Plan Overview</Typography>
+              {highlightLoading && <CircularProgress size={18} />}
             </Box>
             {highlightError && (
               <Alert 
@@ -296,22 +302,24 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
           </Box>
 
           {/* --- Right Column: Highlighted Plot Details --- */}
-          <Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-              <Typography variant="h6">Plot Details</Typography>
+              <Typography variant="h6" sx={{ fontWeight: 600, color: '#f1f5f9', fontSize: '1rem' }}>Plot Details</Typography>
             </Box>
             {selectedPlotPhoto && selectedPlotDetails ? (
               <div style={{ position: 'sticky', top: '20px' }}>
                 <Card sx={{ 
                   position: 'relative', 
-                  borderRadius: 3,
-                  border: '1px solid #e2e8f0',
-                  boxShadow: '0 10px 30px rgba(99, 102, 241, 0.15)',
+                  borderRadius: 2,
+                  border: '1px solid rgba(71, 85, 105, 0.3)',
+                  background: 'rgba(10, 14, 26, 0.6)',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
                   overflow: 'hidden',
                   transition: 'all 0.3s ease',
                   '&:hover': {
-                    boxShadow: '0 15px 40px rgba(99, 102, 241, 0.25)',
-                    transform: 'translateY(-2px)',
+                    boxShadow: '0 4px 12px rgba(129, 140, 248, 0.3)',
+                    transform: 'translateY(-1px)',
+                    borderColor: 'rgba(129, 140, 248, 0.4)',
                   }
                 }}>
                 <CardMedia
@@ -365,11 +373,11 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                 display: 'flex', 
                 alignItems: 'center', 
                 justifyContent: 'center', 
-                p: 4, 
+                p: 3, 
                 minHeight: '300px', 
-                background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-                borderRadius: 3,
-                border: '2px dashed #cbd5e1',
+                background: 'linear-gradient(135deg, rgba(3, 2, 19, 0.6) 0%, rgba(10, 14, 26, 0.6) 100%)',
+                borderRadius: 2,
+                border: '2px dashed rgba(71, 85, 105, 0.3)',
                 boxShadow: 'none',
               }}>
                 <Typography variant="body1" color="text.secondary" align="center" sx={{ fontWeight: 500 }}>
@@ -381,16 +389,23 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
         </Box>
 
         {/* --- Individual Plot Gallery --- */}
-        <div className="gallery-section" style={{ marginTop: '4rem' }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 3, mt: 4 }}>
-            <ViewModule sx={{ color: '#6366f1' }} />
-            <Typography variant="h6">
-              Highlighted Plot Gallery ({plotPhotos.length} highlighted plots)
+        <div className="gallery-section" style={{ borderTop: '1px solid rgba(71, 85, 105, 0.5)' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2.5 }}>
+            <ViewModule sx={{ color: '#6366f1', fontSize: '1.25rem' }} />
+            <Typography variant="h6" sx={{ fontWeight: 600, color: '#f1f5f9', fontSize: '1rem' }}>
+              Highlighted Plot Gallery ({plotPhotos.length} plots)
             </Typography>
           </Box>
 
           {plotPhotos.length > 0 ? (
-            <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
+            <Box sx={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', 
+              gap: 2,
+              '@media (max-width: 768px)': {
+                gridTemplateColumns: '1fr',
+              }
+            }}>
               {plotPhotos.map((photo: any, index: number) => {
                 const plot = summary!.plots.find((p: any) => p.plot_id === parseInt(photo.plotId));
                 if (!plot) return null;
@@ -398,17 +413,30 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                   <Card
                     key={photo.key}
                     sx={{
-                      maxWidth: 345,
                       cursor: 'pointer',
                       transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                       position: 'relative',
-                      borderRadius: 3,
-                      border: '1px solid #e2e8f0',
-                      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+                      borderRadius: 2,
+                      border: '1px solid rgba(71, 85, 105, 0.3)',
+                      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                      overflow: 'hidden',
+                      background: 'rgba(10, 14, 26, 0.6)',
                       '&:hover': {
-                        transform: 'translateY(-8px)',
-                        boxShadow: '0 20px 40px rgba(99, 102, 241, 0.25)',
-                        borderColor: '#c7d2fe',
+                        transform: 'translateY(-4px)',
+                        boxShadow: '0 8px 20px rgba(129, 140, 248, 0.3), 0 0 0 1px #818cf8',
+                        borderColor: 'transparent',
+                        '& .plot-image': {
+                          transform: 'scale(1.03)',
+                        },
+                        '& .plot-badge': {
+                          background: 'linear-gradient(135deg, #818cf8 0%, #a78bfa 100%)',
+                          color: '#030213',
+                          borderColor: 'transparent',
+                        },
+                        '& .download-btn': {
+                          opacity: 1,
+                          transform: 'scale(1)',
+                        }
                       }
                     }}
                     onClick={() => {
@@ -416,45 +444,189 @@ const Results: React.FC<ResultsProps> = ({ response, error, loading }) => {
                       setPreviewOpen(true);
                     }}
                   >
-                    <CardMedia
-                      component="img"
-                      height="400"
-                      width="100%"
-                      image={photo.src}
-                      alt={`Highlighted Plot ${photo.plotId}`}
-                    />
-                    <IconButton
-                      onClick={(event) => handleDownload(event, photo.src, photo.plotId)}
-                      sx={{
-                        position: 'absolute',
-                        top: 12,
-                        right: 12,
-                        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
-                        color: 'white',
-                        boxShadow: '0 4px 12px rgba(99, 102, 241, 0.4)',
-                        '&:hover': {
-                          background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%)',
-                          boxShadow: '0 6px 16px rgba(99, 102, 241, 0.5)',
-                          transform: 'scale(1.05)',
-                        },
-                        transition: 'all 0.3s ease',
-                      }}
-                    >
-                      <Download />
-                    </IconButton>
-                    <CardContent>
-                      <Typography gutterBottom variant="h5" component="div">
-                        Plot {photo.plotId} (Highlighted)
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Shape: {plot.shape_type} ({plot.num_sides} sides)
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Area: {plot.area_value} sq.m ({(plot.area_value * 10.764).toFixed(1)} sq.ft)
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Edges: {plot.edge_dimensions.map((edge: any) => `${edge.length_meters}m (${edge.source})`).join(', ')}
-                      </Typography>
+                    {/* Image Container */}
+                    <Box sx={{ 
+                      position: 'relative', 
+                      overflow: 'hidden',
+                      background: 'linear-gradient(135deg, rgba(3, 2, 19, 0.6) 0%, rgba(10, 14, 26, 0.6) 100%)',
+                      height: 320,
+                    }}>
+                      <CardMedia
+                        component="img"
+                        className="plot-image"
+                        sx={{
+                          height: '100%',
+                          width: '100%',
+                          objectFit: 'contain',
+                          transition: 'transform 0.4s ease',
+                          padding: 2,
+                        }}
+                        image={photo.src}
+                        alt={`Highlighted Plot ${photo.plotId}`}
+                      />
+                      
+                      {/* Download Button */}
+                      <IconButton
+                        className="download-btn"
+                        onClick={(event) => handleDownload(event, photo.src, photo.plotId)}
+                        sx={{
+                          position: 'absolute',
+                          top: 12,
+                          right: 12,
+                          background: 'rgba(10, 14, 26, 0.95)',
+                          backdropFilter: 'blur(10px)',
+                          color: '#818cf8',
+                          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+                          border: '1px solid rgba(129, 140, 248, 0.3)',
+                          opacity: 0,
+                          transform: 'scale(0.8)',
+                          transition: 'all 0.3s ease',
+                          '&:hover': {
+                            background: 'linear-gradient(135deg, #818cf8 0%, #a78bfa 100%)',
+                            color: '#030213',
+                            boxShadow: '0 6px 20px rgba(129, 140, 248, 0.5)',
+                            transform: 'scale(1.1) !important',
+                          },
+                        }}
+                      >
+                        <Download fontSize="small" />
+                      </IconButton>
+
+                      {/* Plot Badge */}
+                      <Box
+                        className="plot-badge"
+                        sx={{
+                          position: 'absolute',
+                          top: 12,
+                          left: 12,
+                          background: 'rgba(10, 14, 26, 0.95)',
+                          backdropFilter: 'blur(10px)',
+                          color: '#f1f5f9',
+                          px: 2,
+                          py: 0.75,
+                          borderRadius: 2,
+                          fontWeight: 700,
+                          fontSize: '0.875rem',
+                          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.4)',
+                          border: '1px solid rgba(129, 140, 248, 0.3)',
+                          transition: 'all 0.3s ease',
+                        }}
+                      >
+                        Plot {photo.plotId}
+                      </Box>
+                    </Box>
+
+                    {/* Card Content */}
+                    <CardContent sx={{ p: 2.5 }}>
+                      <Box sx={{ mb: 1.5 }}>
+                        <Typography 
+                          variant="h6" 
+                          component="div" 
+                          sx={{ 
+                            fontWeight: 600, 
+                            color: '#f1f5f9',
+                            mb: 1,
+                            fontSize: '1rem',
+                          }}
+                        >
+                          {plot.shape_type}
+                        </Typography>
+                      </Box>
+
+                      {/* Info Grid */}
+                      <Box sx={{ 
+                        display: 'grid', 
+                        gap: 1,
+                      }}>
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center',
+                          gap: 1,
+                        }}>
+                          <Box sx={{ 
+                            width: 8, 
+                            height: 8, 
+                            borderRadius: '50%', 
+                            background: 'linear-gradient(135deg, #818cf8 0%, #a78bfa 100%)',
+                          }} />
+                          <Typography variant="body2" sx={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+                            <strong style={{ color: '#f1f5f9' }}>{plot.num_sides}</strong> sides
+                          </Typography>
+                        </Box>
+
+                        <Box sx={{ 
+                          display: 'flex', 
+                          alignItems: 'center',
+                          gap: 1,
+                        }}>
+                          <Box sx={{ 
+                            width: 8, 
+                            height: 8, 
+                            borderRadius: '50%', 
+                            background: 'linear-gradient(135deg, #a78bfa 0%, #ec4899 100%)',
+                          }} />
+                          <Typography variant="body2" sx={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+                            <strong style={{ color: '#f1f5f9' }}>{plot.area_value} sq.m</strong> ({(plot.area_value * 10.764).toFixed(1)} sq.ft)
+                          </Typography>
+                        </Box>
+
+                        {/* Edge Dimensions */}
+                        <Box sx={{ 
+                          mt: 0.5,
+                          pt: 1.5, 
+                          borderTop: '1px solid rgba(71, 85, 105, 0.5)',
+                        }}>
+                          <Typography 
+                            variant="caption" 
+                            sx={{ 
+                              color: '#94a3b8', 
+                              fontSize: '0.6875rem',
+                              fontWeight: 600,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              mb: 0.75,
+                              display: 'block',
+                            }}
+                          >
+                            Dimensions
+                          </Typography>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                            {plot.edge_dimensions.slice(0, 4).map((edge: any, idx: number) => (
+                              <Box
+                                key={idx}
+                                sx={{
+                                  background: 'linear-gradient(135deg, rgba(3, 2, 19, 0.6) 0%, rgba(10, 14, 26, 0.6) 100%)',
+                                  border: '1px solid rgba(71, 85, 105, 0.3)',
+                                  px: 1.25,
+                                  py: 0.375,
+                                  borderRadius: 1,
+                                  fontSize: '0.6875rem',
+                                  color: '#cbd5e1',
+                                  fontWeight: 500,
+                                }}
+                              >
+                                {edge.length_meters}m
+                              </Box>
+                            ))}
+                            {plot.edge_dimensions.length > 4 && (
+                              <Box
+                                sx={{
+                                  background: 'linear-gradient(135deg, rgba(129, 140, 248, 0.2) 0%, rgba(165, 180, 252, 0.2) 100%)',
+                                  border: '1px solid rgba(129, 140, 248, 0.4)',
+                                  px: 1.25,
+                                  py: 0.375,
+                                  borderRadius: 1,
+                                  fontSize: '0.6875rem',
+                                  color: '#a5b4fc',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                +{plot.edge_dimensions.length - 4} more
+                              </Box>
+                            )}
+                          </Box>
+                        </Box>
+                      </Box>
                     </CardContent>
                   </Card>
                 );

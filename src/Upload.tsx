@@ -243,7 +243,7 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
 
         <Box sx={{ mt: 2, mb: 1.5 }}>
           <FormControl component="fieldset" fullWidth>
-            <FormLabel component="legend" sx={{ mb: 1, fontWeight: 600, color: '#1e293b', fontSize: '0.875rem' }}>
+            <FormLabel component="legend" sx={{ mb: 1, fontWeight: 600, color: '#f1f5f9', fontSize: '0.875rem' }}>
               Output Format
             </FormLabel>
             <RadioGroup
@@ -253,8 +253,8 @@ const Upload: React.FC<UploadProps> = ({ setResponse, setError, setLoading }) =>
             >
               <FormControlLabel 
                 value="svg" 
-                control={<Radio size="small" sx={{ color: '#6366f1', '&.Mui-checked': { color: '#6366f1' } }} />} 
-                label={<Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>SVG (Vector)</Typography>} 
+                control={<Radio size="small" sx={{ color: '#818cf8', '&.Mui-checked': { color: '#818cf8' } }} />} 
+                label={<Typography sx={{ fontWeight: 500, fontSize: '0.875rem', color: '#f1f5f9' }}>SVG (Vector)</Typography>} 
               />
               {/* <FormControlLabel value="jpeg" control={<Radio />} label="JPEG (Raster)" /> */}
             </RadioGroup>

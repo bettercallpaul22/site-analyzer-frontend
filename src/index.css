@@ -29,16 +29,16 @@ code {
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f5f9;
+  background: #030213;
   border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #818cf8 0%, #a78bfa 100%);
   border-radius: 10px;
-  border: 2px solid #f1f5f9;
+  border: 2px solid #030213;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #a5b4fc 0%, #c4b5fd 100%);
 }

@@ -9,24 +9,24 @@ import Upload from './Upload';
 
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
     primary: {
-      main: '#6366f1',
-      light: '#818cf8',
-      dark: '#4f46e5',
+      main: '#030213',
+      light: '#1e293b',
+      dark: '#000000',
     },
     secondary: {
-      main: '#10b981',
-      light: '#34d399',
-      dark: '#059669',
+      main: '#34d399',
+      light: '#6ee7b7',
+      dark: '#10b981',
     },
     background: {
-      default: '#f8fafc',
-      paper: '#ffffff',
+      default: '#030213',
+      paper: '#0a0e1a',
     },
     text: {
-      primary: '#1e293b',
-      secondary: '#64748b',
+      primary: '#f1f5f9',
+      secondary: '#94a3b8',
     },
   },
   typography: {
